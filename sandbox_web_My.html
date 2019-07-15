@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>sandboy_web_my</title>
+	    <script src="js/Three_new.js"></script>
+	    <script src="js/OrbitControls.js"></script>
+	    <script src="js/Detector.js"></script>
+	    <script src="js/dat.gui.min.js"></script>
+	<style>
+		html { overflow-x: hidden; overflow-y: hidden;}
+	</style>
+</head>
+<body>
+<!-- <div id="ThreeJS" style="position: absolute; width:1280px;height:720px;left:0px; top:0px"></div> -->
+	<div id="ThreeJS" style="position: absolute; width:1240px;height:848px;left:0px; top:0px"></div>
+	 <canvas id="webgl" width="300" height="300" style="position: absolute;top: 0;left: 0;">
+    Please use a browser that supports "canvas"
+    </canvas>
+</body>
+	<!-- fragment shader a.k.a. pixel shader -->
+<script id="vertexShader" type="x-shader/x-vertex">
+uniform sampler2D bumpTexture;
+uniform float bumpScale;
+varying float vAmount;
+varying vec2 vUV;
+void main()
+{
+	vUV = uv;
+	vec4 bumpData = texture2D( bumpTexture, uv);
+	vAmount = bumpData.r; // assuming map is grayscale it doesn't matter if you use r, g, or b.
+    vec3 newPosition = position + normal * bumpScale * vAmount;
+	gl_Position = projectionMatrix * modelViewMatrix * vec4( newPosition, 1.0 );
+}
+</script>
+
+<script id="fragmentShader" type="x-shader/x-vertex">
+precision highp float;
+
+uniform sampler2D oceanTexture;
+uniform sampler2D sandyTexture;
+uniform sampler2D grassTexture;
+uniform sampler2D rockyTexture;
+uniform sampler2D snowyTexture;
+
+
+varying vec2 vUV;
+
+varying float vAmount;
+int num = 10;
+float w = 0.1;
+
+void main()
+{
+	vec4 water = (smoothstep(0.01, 0.08, vAmount) - smoothstep(0.07, 0.10, vAmount)) * texture2D( oceanTexture, vUV * 10.0 );
+	vec4 sandy = (smoothstep(0.07, 0.11, vAmount) - smoothstep(0.12, 0.15, vAmount)) * texture2D( sandyTexture, vUV * 10.0 );
+	vec4 grass = (smoothstep(0.11, 0.16, vAmount) - smoothstep(0.23, 0.40, vAmount)) * texture2D( grassTexture, vUV * 20.0 );
+	vec4 rocky = (smoothstep(0.23, 0.50, vAmount) - smoothstep(0.40, 0.70, vAmount)) * texture2D( rockyTexture, vUV * 20.0 );
+	vec4 snowy = (smoothstep(0.50, 0.65, vAmount))
+
+	* texture2D( snowyTexture, vUV * 10.0 );
+
+    // float f  = fract (vAmount * 32.0);
+    // float ca = smoothstep(0.08, 0.10, f);
+    // float cc = max(ca,0.75);
+    gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0) + water + sandy + grass + rocky+ snowy;
+    //gl_FragColor=vec4(0.0,0.0,1.0,1.0);
+
+}
+
+
+</script>
+<script src="js/main_my.js"></script>
+
+</html>
